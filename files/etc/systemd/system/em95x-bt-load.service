@@ -1,0 +1,17 @@
+[Unit]
+Description=Load RTL8723BS Bluetooth after WiFi is connected
+Documentation=file:///etc/modprobe.d/em95x-bt-delay.conf
+# hci_uart is blacklisted so its BT firmware download cannot disturb the WiFi
+# init at boot; this unit loads it once wlan0 is associated, or after 120 s if
+# the link never comes up.
+Wants=NetworkManager.service
+After=NetworkManager.service network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/em95x-bt-load.sh
+RemainAfterExit=yes
+TimeoutStartSec=180
+
+[Install]
+WantedBy=multi-user.target

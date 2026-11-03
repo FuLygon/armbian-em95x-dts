@@ -1,0 +1,18 @@
+[Unit]
+Description=Power the RTL8723BS BT core before WiFi initialises
+Documentation=file:///etc/modprobe.d/em95x-bt-delay.conf
+# The combo chip's BT core must be out of reset before the WiFi driver probes
+# (r8723bs loads at ~13.8 s on this image), otherwise wlan0 is rejected for
+# minutes.  Only NetworkManager orders this unit: adding Wants=/Before= on early
+# boot targets made systemd batch it with 10-14 s jobs, too close to the probe.
+DefaultDependencies=no
+Before=NetworkManager.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/em95x-bt-power.sh
+TimeoutStartSec=30
+
+[Install]
+WantedBy=multi-user.target
